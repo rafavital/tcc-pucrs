@@ -10,10 +10,12 @@ config_version=5
 
 [application]
 
-config/name="tcc-pucrs_godot"
-run/main_scene="res://project/main.tscn"
-config/features=PackedStringArray("4.2", "Forward Plus")
-config/icon="res://project/icon.svg"
+config/name="Godot RL Agents"
+config/features=PackedStringArray("4.0")
+
+[dotnet]
+
+project/assembly_name="Godot RL Agents"
 
 [editor_plugins]
 

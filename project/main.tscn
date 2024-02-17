@@ -1,6 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://7nqj2sn1ade8"]
+[gd_scene load_steps=13 format=3 uid="uid://7nqj2sn1ade8"]
 
-[ext_resource type="Script" path="res://Agent.gd" id="1_ofsxs"]
+[ext_resource type="Script" path="res://project/Agent.gd" id="1_ofsxs"]
+[ext_resource type="Script" path="res://addons/godot_rl_agents/controller/ai_controller_3d.gd" id="2_a7bsp"]
+[ext_resource type="Script" path="res://addons/godot_rl_agents/sync.gd" id="3_3xpyp"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_ohqn1"]
 
@@ -80,8 +82,14 @@ mesh = SubResource("BoxMesh_ld410")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Agent"]
 shape = SubResource("ConcavePolygonShape3D_1igwm")
 
+[node name="AIController3D" type="Node3D" parent="Agent"]
+script = ExtResource("2_a7bsp")
+
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-4.37114e-08, -0.283664, 0.958924, 0, 0.958924, 0.283664, -1, 1.23993e-08, -4.19159e-08, 15, 7, 2.08165e-12)
+
+[node name="Sync" type="Node" parent="."]
+script = ExtResource("3_3xpyp")
 
 [connection signal="area_entered" from="Target" to="Agent" method="_on_target_area_entered"]
 [connection signal="body_entered" from="Target" to="Agent" method="_on_reach_target"]
