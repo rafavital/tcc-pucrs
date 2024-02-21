@@ -1,6 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://dtl5ou6yrvd66"]
-
-[ext_resource type="PackedScene" uid="uid://dho251rdomcku" path="res://project/crash_dummy/scene.gltf" id="1_ttnm1"]
+[gd_scene load_steps=3 format=3 uid="uid://dtl5ou6yrvd66"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_jg2m0"]
 
@@ -18,9 +16,6 @@ mesh = SubResource("BoxMesh_jg2m0")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_6ilwq")
 
-[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+[node name="RigidBody3D" type="RigidBody3D" parent="."]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D"]
-
-[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_ttnm1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.19508, 0.0500002, 0.0219026)
+[node name="HingeJoint3D" type="HingeJoint3D" parent="RigidBody3D"]

@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://d1grr7omojre1"]
+
+[node name="Wheel" type="VehicleWheel3D"]
+use_as_traction = true
+wheel_radius = 0.3
+suspension_travel = 0.3
+suspension_stiffness = 40.0
