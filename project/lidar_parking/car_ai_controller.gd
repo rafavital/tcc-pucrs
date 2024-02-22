@@ -1,10 +1,6 @@
 extends Node3D
 class_name CarAIController
 
-signal engine_force_changed
-signal steering_changed
-signal reward_changed
-
 @export var reset_after := 1000
 
 var heuristic := "human"
@@ -19,10 +15,7 @@ var _park_spot : Node3D
 var engine_force := 0.0
 var steering := 0.0
 
-@onready var back_sensor = $BackSensor
-@onready var front_sensor = $FrontSensor
-@onready var right_sensor = $RightSensor
-@onready var left_sensor = $LeftSensor
+@onready var sensors = $Sensors
 
 func _ready():
 	add_to_group("AGENT")
@@ -39,6 +32,8 @@ func get_obs() -> Dictionary:
 		_park_spot.position.x,
 		_park_spot.position.y
 	]
+	
+	obs.append(sensors.get_observation())
 	
 	return {"obs":obs}
 
