@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://qkvjbemtruas"]
+[gd_scene load_steps=6 format=3 uid="uid://qkvjbemtruas"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_ndyy1"]
 
@@ -10,13 +10,36 @@ albedo_color = Color(0.298039, 0.74902, 0.188235, 0.313726)
 material = SubResource("StandardMaterial3D_nfd0e")
 size = Vector3(3, 1, 4)
 
+[sub_resource type="BoxMesh" id="BoxMesh_l47nq"]
+size = Vector3(0.1, 0.05, 4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_fgkqj"]
+size = Vector3(3, 0.05, 0.1)
+
 [node name="ParkSpot" type="Node3D" groups=["park_spots"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.58208, 0, -2)
 
 [node name="HoverSphere" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 2.08165e-12)
+visible = false
 mesh = SubResource("SphereMesh_ndyy1")
 
 [node name="Box" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.5, 2.08165e-12)
+visible = false
 mesh = SubResource("BoxMesh_yof17")
+
+[node name="SpotGFX" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.1, 2.08165e-12)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="SpotGFX"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 2.08165e-12, 2.08165e-12)
+mesh = SubResource("BoxMesh_l47nq")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="SpotGFX"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 2.08165e-12, 2.08165e-12)
+mesh = SubResource("BoxMesh_l47nq")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="SpotGFX"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 1.94)
+mesh = SubResource("BoxMesh_fgkqj")

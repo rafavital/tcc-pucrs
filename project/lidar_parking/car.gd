@@ -28,12 +28,13 @@ var _color := Color.GRAY
 @onready var _initial_transform := transform
 @onready var _parking_manager : ParkingSpotManager = get_node("/root/ParkingManager")
 @onready var body = %body
+@onready var spot_indicator = get_node("SpotIndicator")
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	_color = _car_colors.pop_front()
-	_park_spot = _parking_manager.get_available_park_spot()
+	_get_new_spot()
 	%CarAIController.init(self, _park_spot)
 
 
@@ -52,7 +53,7 @@ func _process(delta):
 	
 	
 func reset():
-	_parking_manager.release_park_spot(_park_spot)
+	#_parking_manager.release_park_spot(_park_spot)
 	_times_restarted += 1
 	#%CarAIController.reward = Vector2(position.x, position.z).distance_to(Vector2(_park_spot.position.x, _park_spot.position.z))
 	%CarAIController.reset()
@@ -62,7 +63,7 @@ func reset():
 	linear_velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
 	
-	_park_spot = _parking_manager.get_available_park_spot()
+	_get_new_spot()
 	# reset position
 	# get another parking position	
 
@@ -105,6 +106,14 @@ func _check_for_reset():
 func on_out_of_bounds () -> void :
 	_end_episode(REWARD_OUT_OF_BOUNDS)
 	
+
+func _get_new_spot () -> void:
+	if _park_spot != null:
+		_parking_manager.release_park_spot(_park_spot)
+	
+	_park_spot = _parking_manager.get_available_park_spot()
+	spot_indicator.reparent(get_tree().root.get_child(0))
+	spot_indicator.global_position = _park_spot.global_transform.origin + Vector3.UP * 5
 
 func _successfully_parked_end_episode() -> void:
 	var reward = (

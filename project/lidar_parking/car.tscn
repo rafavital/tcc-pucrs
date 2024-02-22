@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://bdhkq05bgaket"]
+[gd_scene load_steps=22 format=3 uid="uid://bdhkq05bgaket"]
 
 [ext_resource type="Script" path="res://project/lidar_parking/car.gd" id="1_i6t03"]
 [ext_resource type="PackedScene" uid="uid://d1grr7omojre1" path="res://project/lidar_parking/wheel.tscn" id="1_itymu"]
@@ -347,6 +347,10 @@ shadow_mesh = SubResource("ArrayMesh_37amr")
 [sub_resource type="BoxShape3D" id="BoxShape3D_l8iaw"]
 size = Vector3(1, 0.806641, 2.31445)
 
+[sub_resource type="SphereMesh" id="SphereMesh_wnfdo"]
+radius = 0.25
+height = 0.5
+
 [node name="Car" type="VehicleBody3D" groups=["cars"]]
 mass = 1000.0
 continuous_cd = true
@@ -501,3 +505,6 @@ collide_with_areas = true
 [node name="node_18 0" type="RayCast3D" parent="CarAIController/Sensors"]
 target_position = Vector3(-1.73642, 0.0872654, -9.8477)
 collide_with_areas = true
+
+[node name="SpotIndicator" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_wnfdo")
