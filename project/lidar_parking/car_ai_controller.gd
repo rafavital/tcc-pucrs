@@ -33,7 +33,7 @@ func get_obs() -> Dictionary:
 		_park_spot.position.y
 	]
 	
-	obs.append(sensors.get_observation())
+	obs.append_array(sensors.get_observation())
 	
 	return {"obs":obs}
 
