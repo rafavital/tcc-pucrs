@@ -9,7 +9,7 @@ signal reward_changed
 
 var heuristic := "human"
 var done := false
-@export var reward := 0.0
+var reward := 0.0
 var n_steps := 0
 var needs_reset := false
 
@@ -18,6 +18,11 @@ var _park_spot : Node3D
 
 var engine_force := 0.0
 var steering := 0.0
+
+@onready var back_sensor = $BackSensor
+@onready var front_sensor = $FrontSensor
+@onready var right_sensor = $RightSensor
+@onready var left_sensor = $LeftSensor
 
 func _ready():
 	add_to_group("AGENT")

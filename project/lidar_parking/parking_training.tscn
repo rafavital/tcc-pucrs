@@ -49,20 +49,24 @@ metadata/_edit_lock_ = true
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_5qjpi")
 
-[node name="Car" parent="." instance=ExtResource("1_lswbv")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.578105, 18.7377)
-acceleration = 75.0
+[node name="ParkingManager" type="Node3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("1_ck7pg")
 
-[node name="ParkSpot" type="Node3D" parent="." groups=["park_spots"]]
+[node name="ParkSpot" type="Node3D" parent="ParkingManager" groups=["park_spots"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.58208, 0, 0)
 
-[node name="HoverSphere" type="MeshInstance3D" parent="ParkSpot"]
+[node name="HoverSphere" type="MeshInstance3D" parent="ParkingManager/ParkSpot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 2.08165e-12)
 mesh = SubResource("SphereMesh_ndyy1")
 
-[node name="Box" type="MeshInstance3D" parent="ParkSpot"]
+[node name="Box" type="MeshInstance3D" parent="ParkingManager/ParkSpot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.5, 2.08165e-12)
 mesh = SubResource("BoxMesh_yof17")
+
+[node name="Car" parent="." instance=ExtResource("1_lswbv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.578105, 18.7377)
+acceleration = 75.0
 
 [node name="Bounds" type="Area3D" parent="."]
 script = ExtResource("3_rt2lg")
