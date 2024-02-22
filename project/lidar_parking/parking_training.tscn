@@ -1,7 +1,8 @@
-[gd_scene load_steps=14 format=3 uid="uid://b2205cfkmncoq"]
+[gd_scene load_steps=12 format=3 uid="uid://b2205cfkmncoq"]
 
 [ext_resource type="Script" path="res://project/lidar_parking/parking_manager.gd" id="1_ck7pg"]
 [ext_resource type="PackedScene" uid="uid://bdhkq05bgaket" path="res://project/lidar_parking/car.tscn" id="1_lswbv"]
+[ext_resource type="PackedScene" uid="uid://qkvjbemtruas" path="res://project/lidar_parking/park_spot.tscn" id="2_ep5jo"]
 [ext_resource type="Script" path="res://project/lidar_parking/bounds.gd" id="3_rt2lg"]
 [ext_resource type="Script" path="res://addons/godot_rl_agents/sync.gd" id="3_san4c"]
 [ext_resource type="Script" path="res://project/lidar_parking/debug_text.gd" id="5_2qsnp"]
@@ -10,16 +11,6 @@
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_5qjpi"]
 data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
-
-[sub_resource type="SphereMesh" id="SphereMesh_ndyy1"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nfd0e"]
-transparency = 1
-albedo_color = Color(0.298039, 0.74902, 0.188235, 0.313726)
-
-[sub_resource type="BoxMesh" id="BoxMesh_yof17"]
-material = SubResource("StandardMaterial3D_nfd0e")
-size = Vector3(3, 1, 4)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_tuiyy"]
 size = Vector3(1, 10, 50)
@@ -49,23 +40,47 @@ metadata/_edit_lock_ = true
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_5qjpi")
 
-[node name="ParkingManager" type="Node3D" parent="."]
+[node name="ParkingSpots" type="Node3D" parent="."]
 unique_name_in_owner = true
-script = ExtResource("1_ck7pg")
 
-[node name="ParkSpot" type="Node3D" parent="ParkingManager" groups=["park_spots"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.58208, 0, 0)
+[node name="ParkSpot" parent="ParkingSpots" instance=ExtResource("2_ep5jo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.58208, 0, -3)
 
-[node name="HoverSphere" type="MeshInstance3D" parent="ParkingManager/ParkSpot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 2.08165e-12)
-mesh = SubResource("SphereMesh_ndyy1")
+[node name="ParkSpot2" parent="ParkingSpots" instance=ExtResource("2_ep5jo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.58208, 0, -3)
 
-[node name="Box" type="MeshInstance3D" parent="ParkingManager/ParkSpot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.5, 2.08165e-12)
-mesh = SubResource("BoxMesh_yof17")
+[node name="ParkSpot3" parent="ParkingSpots" instance=ExtResource("2_ep5jo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.41792, 0, -3)
+
+[node name="ParkSpot4" parent="ParkingSpots" instance=ExtResource("2_ep5jo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.41792, 0, -3)
+
+[node name="ParkSpot5" parent="ParkingSpots" instance=ExtResource("2_ep5jo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.58208, 0, 2)
+
+[node name="ParkSpot6" parent="ParkingSpots" instance=ExtResource("2_ep5jo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.58208, 0, 2)
+
+[node name="ParkSpot7" parent="ParkingSpots" instance=ExtResource("2_ep5jo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.41792, 0, 2)
+
+[node name="ParkSpot8" parent="ParkingSpots" instance=ExtResource("2_ep5jo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.41792, 0, 2)
 
 [node name="Car" parent="." instance=ExtResource("1_lswbv")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.578105, 18.7377)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.13, 20)
+acceleration = 75.0
+
+[node name="Car2" parent="." instance=ExtResource("1_lswbv")]
+transform = Transform3D(-1, 3.48787e-16, -8.74228e-08, 3.48787e-16, 1, -3.48787e-16, 8.74228e-08, -3.48787e-16, -1, 2.08165e-12, 0.13, -20)
+acceleration = 75.0
+
+[node name="Car3" parent="." instance=ExtResource("1_lswbv")]
+transform = Transform3D(-4.37114e-08, 3.48787e-16, 1, 3.48787e-16, 1, -3.48787e-16, -1, 3.48787e-16, -4.37114e-08, 20, 0.13, 2.08165e-12)
+acceleration = 75.0
+
+[node name="Car4" parent="." instance=ExtResource("1_lswbv")]
+transform = Transform3D(-4.37114e-08, -3.48787e-16, -1, 3.48787e-16, 1, -3.48787e-16, 1, -3.48787e-16, -4.37114e-08, -20, 0.13, 2.08165e-12)
 acceleration = 75.0
 
 [node name="Bounds" type="Area3D" parent="."]
@@ -92,7 +107,7 @@ script = ExtResource("3_san4c")
 speed_up = 16
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(-4.37114e-08, 0.469472, -0.882948, 3.07961e-16, 0.882948, 0.469472, 1, 2.05213e-08, -3.85949e-08, -40.518, 21.434, -0.926637)
+transform = Transform3D(-4.37114e-08, 0.469472, -0.882948, 3.07961e-16, 0.882948, 0.469472, 1, 2.05213e-08, -3.85949e-08, -40.5444, 21.4405, -0.914119)
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -126,4 +141,13 @@ script = ExtResource("5_2qsnp")
 [connection signal="engine_force_changed" from="Car" to="Control/DebugValues" method="set_engine"]
 [connection signal="reward_changed" from="Car" to="Control/DebugValues" method="set_reward"]
 [connection signal="steering_changed" from="Car" to="Control/DebugValues" method="set_steering"]
+[connection signal="engine_force_changed" from="Car2" to="Control/DebugValues" method="set_engine"]
+[connection signal="reward_changed" from="Car2" to="Control/DebugValues" method="set_reward"]
+[connection signal="steering_changed" from="Car2" to="Control/DebugValues" method="set_steering"]
+[connection signal="engine_force_changed" from="Car3" to="Control/DebugValues" method="set_engine"]
+[connection signal="reward_changed" from="Car3" to="Control/DebugValues" method="set_reward"]
+[connection signal="steering_changed" from="Car3" to="Control/DebugValues" method="set_steering"]
+[connection signal="engine_force_changed" from="Car4" to="Control/DebugValues" method="set_engine"]
+[connection signal="reward_changed" from="Car4" to="Control/DebugValues" method="set_reward"]
+[connection signal="steering_changed" from="Car4" to="Control/DebugValues" method="set_steering"]
 [connection signal="body_entered" from="Bounds" to="Bounds" method="_on_body_entered"]
