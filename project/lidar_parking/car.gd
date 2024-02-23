@@ -15,25 +15,28 @@ const PARK_VEL_THRESHOLD := 0.05
 
 const REWARD_PARKED := 10
 const REWARD_OUT_OF_BOUNDS := -10
+const REWARD_COLLISION := -30
+const REWARD_CLOSING_IN := 5
 
 @export var acceleration: float = 200
+@export var braking : float = 200
 @export var max_steer_angle: float = 20
+@export var color := Color.GRAY
 
 var _park_spot : Node3D
 var _smallest_distance_to_goal : float
 var _times_restarted := 0
-var _color := Color.GRAY
 
 @onready var _initial_position := position
 @onready var _initial_transform := transform
-@onready var _parking_manager : ParkingSpotManager = get_node("/root/ParkingManager")
+#@onready var _parking_manager : ParkingSpotManager = get_node("/root/ParkingManager")
 @onready var body = %body
 @onready var spot_indicator = get_node("SpotIndicator")
 
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	_color = _car_colors.pop_front()
+	#var surface_id = body.mesh.surface_find_by_name("paintRed")
+	#body.mesh.surface_get_material(surface_id).albedo_color = color
 	_get_new_spot()
 	%CarAIController.init(self, _park_spot)
 
@@ -44,6 +47,7 @@ func _process(delta):
 	_update_reward()
 	
 	engine_force = %CarAIController.engine_force * acceleration
+	brake = %CarAIController.brake * braking
 	steering = move_toward(steering, deg_to_rad(%CarAIController.steering * max_steer_angle), delta)
 	
 	_broadcast_values()
@@ -53,7 +57,6 @@ func _process(delta):
 	
 	
 func reset():
-	#_parking_manager.release_park_spot(_park_spot)
 	_times_restarted += 1
 	#%CarAIController.reward = Vector2(position.x, position.z).distance_to(Vector2(_park_spot.position.x, _park_spot.position.z))
 	%CarAIController.reset()
@@ -63,7 +66,7 @@ func reset():
 	linear_velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
 	
-	_get_new_spot()
+	#_get_new_spot()
 	# reset position
 	# get another parking position	
 
@@ -76,18 +79,20 @@ func _update_reward():
 	
 	var orientation_modifier := 1.0
 	
-	reward = _smallest_distance_to_goal - distance
+	#reward = _smallest_distance_to_goal - distance
+	
+	if distance < GOAL_RADIUS:
+		orientation_modifier = (1 - _get_direction_difference())
 	
 	if distance < _smallest_distance_to_goal:
+		%CarAIController.reward +=  (_smallest_distance_to_goal - distance) * REWARD_CLOSING_IN * orientation_modifier
 		_smallest_distance_to_goal = distance
-	
-	
-	if distance > GOAL_RADIUS:
-		%CarAIController.reward -= 10 * (_get_normalized_velocity().length() / %CarAIController.reset_after)
+	elif distance > GOAL_RADIUS:
+		%CarAIController.reward +=  -10 * (_get_normalized_velocity().length() / %CarAIController.reset_after)
 	
 	# Punishment if the car runs from the goal
 	if _smallest_distance_to_goal < GOAL_RADIUS and distance > _smallest_distance_to_goal + GOAL_RADIUS:
-		_end_episode(REWARD_OUT_OF_BOUNDS)
+		_end_episode(REWARD_OUT_OF_BOUNDS)	
 	
 	%CarAIController.reward += reward
 		
@@ -109,11 +114,12 @@ func on_out_of_bounds () -> void :
 
 func _get_new_spot () -> void:
 	if _park_spot != null:
-		_parking_manager.release_park_spot(_park_spot)
+		ParkingManager.release_park_spot(_park_spot)
 	
-	_park_spot = _parking_manager.get_available_park_spot()
-	spot_indicator.reparent(get_tree().root.get_child(0))
-	spot_indicator.global_position = _park_spot.global_transform.origin + Vector3.UP * 5
+	_park_spot = ParkingManager.get_available_park_spot()
+	if spot_indicator:
+		spot_indicator.reparent(get_tree().root.get_child(0))
+		spot_indicator.global_position = _park_spot.global_transform.origin + Vector3.UP * 5
 
 func _successfully_parked_end_episode() -> void:
 	var reward = (
@@ -129,7 +135,7 @@ func _end_episode (final_reward: float):
 	%CarAIController.reward += final_reward
 	%CarAIController.needs_reset = true
 	%CarAIController.done = true
-	
+
 
 func _get_current_distance_to_goal() -> float:
 	# Exclude Y difference from the calculated distance 
@@ -143,9 +149,16 @@ func _broadcast_values() ->void:
 	emit_signal("steering_changed", steering)
 	emit_signal("engine_force_changed", engine_force)
 	
+# Returns the difference between current direction and goal direction in range 0,1
+# If 1, the angle is 180 degrees, if 0, the direction is perfectly aligned.
 func _get_direction_difference() -> float:
 	return (global_transform.basis.z.dot(-_park_spot.global_transform.basis.z) + 1) / 2
 	
 func _get_normalized_velocity():
 	var max_vel = acceleration / mass * 40
 	return linear_velocity.normalized() * (linear_velocity.length() / max_vel)
+
+
+func on_collide(body):
+	if body is VehicleBody3D:
+		_end_episode(REWARD_COLLISION)

@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=3 uid="uid://boblul6r2it4"]
+
+[ext_resource type="PackedScene" uid="uid://b2205cfkmncoq" path="res://project/lidar_parking/parking_training.tscn" id="1_1phwr"]
+
+[node name="BatchParking" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, -4.9619e-16, 3.16109e-16, 3.16108e-16, 0.906308, 0.422618, -4.96191e-16, -0.422618, 0.906308, -0.0310402, 22.0538, 49.1626)
+
+[node name="ParkingTraining" parent="." instance=ExtResource("1_1phwr")]
+
+[node name="ParkingTraining2" parent="." instance=ExtResource("1_1phwr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, 0)
+
+[node name="ParkingTraining3" parent="." instance=ExtResource("1_1phwr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -52, 0, 0)
+
+[node name="ParkingTraining4" parent="." instance=ExtResource("1_1phwr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -52)
+
+[node name="ParkingTraining5" parent="." instance=ExtResource("1_1phwr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -52)
+
+[node name="ParkingTraining6" parent="." instance=ExtResource("1_1phwr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -52, 0, -52)

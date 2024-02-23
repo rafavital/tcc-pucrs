@@ -13,6 +13,7 @@ var _car: VehicleBody3D
 var _park_spot : Node3D
 
 var engine_force := 0.0
+var brake := 0.0
 var steering := 0.0
 
 @onready var sensors = $Sensors
@@ -50,13 +51,16 @@ func get_action_space() -> Dictionary:
 			"size" : 1,
 			"action_type": "continuous"
 		},
+		"brake" : {
+			"size": 1,
+			"action_type": "continuous"
+		}
 	}
 	
 func set_action(action) -> void:	
 	engine_force = clampf(action["engine_force"][0], -1.0, 1.0)
 	steering = clampf(action["steering"][0], -1.0, 1.0)
-	# move.x = action["move"][0]
-	# move.y = action["move"][1]
+	brake = clampf(action["brake"][0], -1.0, 1.0)
 # -----------------------------------------------------------------------------#
 	
 func _physics_process(delta):
