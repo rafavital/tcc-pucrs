@@ -28,11 +28,31 @@ func init(car: VehicleBody3D, park_spot : Node3D):
 #-- Methods that need implementing using the "extend script" option in Godot --#
 func get_obs() -> Dictionary:
 	var obs := [
+		n_steps / float(reset_after),
+		_car.to_local(_park_spot.origin) /
+		Vector2(
+			_car.playing_area_x_size,
+			_car.playing_area_z_size
+		).length(),
 		_car.position.x,
 		_car.position.y,
 		_park_spot.position.x,
 		_park_spot.position.y
 	]
+	
+	if _car.times_restarted == 0:
+		obs.append_array([0.0, 0.0, 0.0, 0.0])
+	else:
+		var goal_transform: Transform3D = _car._park_spot
+		var goal_position = (_car.get_normalized_goal_pos()).length()
+		obs.append_array(
+			[
+				goal_position.x,
+				goal_position.z,
+				(goal_transform.basis.z - _car.global_transform.basis.z).x,
+				(goal_transform.basis.z - _car.global_transform.basis.z).z,
+			]
+		)
 	
 	obs.append_array(sensors.get_observation())
 	

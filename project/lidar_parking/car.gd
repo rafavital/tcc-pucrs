@@ -18,6 +18,11 @@ const REWARD_OUT_OF_BOUNDS := -10
 const REWARD_COLLISION := -30
 const REWARD_CLOSING_IN := 5
 
+const PLAYING_AREA_X_SIZE := 20.0
+const PLAYING_AREA_Y_SIZE := 20.0
+
+const PLAYING_AREA_SIZE := Vector2(20,20)
+
 @export var acceleration: float = 200
 @export var braking : float = 200
 @export var max_steer_angle: float = 20
@@ -27,6 +32,7 @@ var _park_spot : Node3D
 var _smallest_distance_to_goal : float
 var _times_restarted := 0
 
+@onready var _max_possible_distance := PLAYING_AREA_SIZE.length()
 @onready var _initial_position := position
 @onready var _initial_transform := transform
 #@onready var _parking_manager : ParkingSpotManager = get_node("/root/ParkingManager")
@@ -137,6 +143,9 @@ func _end_episode (final_reward: float):
 	%CarAIController.done = true
 
 
+func get_normalized_goal_pos():
+	return to_local(_park_spot.transform.origin)/ _max_possible_distance
+
 func _get_current_distance_to_goal() -> float:
 	# Exclude Y difference from the calculated distance 
 	var goal_transform: Transform3D = _park_spot.transform
@@ -160,5 +169,5 @@ func _get_normalized_velocity():
 
 
 func on_collide(body):
-	if body is VehicleBody3D:
-		_end_episode(REWARD_COLLISION)
+#	if body is VehicleBody3D:
+	_end_episode(REWARD_COLLISION)

@@ -352,6 +352,10 @@ mass = 1000.0
 continuous_cd = true
 max_contacts_reported = 1
 script = ExtResource("1_i6t03")
+acceleration = null
+braking = null
+max_steer_angle = null
+color = null
 
 [node name="CarMesh" type="Node3D" parent="."]
 

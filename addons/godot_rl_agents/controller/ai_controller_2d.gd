@@ -9,13 +9,13 @@ var reward := 0.0
 var n_steps := 0
 var needs_reset := false
 
-var _player: Node2D
+var _car: Node2D
 
 func _ready():
 	add_to_group("AGENT")
 	
 func init(player: Node2D):
-	_player = player
+	_car = player
 	
 #-- Methods that need implementing using the "extend script" option in Godot --#
 func get_obs() -> Dictionary:
