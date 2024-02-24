@@ -1,173 +1,200 @@
 extends VehicleBody3D
+class_name Car
 
-static var _car_colors = [Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW]
-
-signal engine_force_changed(value :float)
-signal steering_changed (value:float)
-signal reward_changed(value:float)
-
-#const PARK_SPOT_GROUP := "park_spots"
-const GOAL_RADIUS := 2.0
-const PLAYING_AREA_RADIUS := 10.0
-const PARK_DIST_THRESHOLD := 0.5
-const PARK_DIR_THRESHOLD := 0.07
-const PARK_VEL_THRESHOLD := 0.05
-
-const REWARD_PARKED := 10
-const REWARD_OUT_OF_BOUNDS := -10
-const REWARD_COLLISION := -30
-const REWARD_CLOSING_IN := 5
-
-const PLAYING_AREA_X_SIZE := 20.0
-const PLAYING_AREA_Y_SIZE := 20.0
-
-const PLAYING_AREA_SIZE := Vector2(20,20)
+@export var playing_area_x_size: float = 20
+@export var playing_area_z_size: float = 20
 
 @export var acceleration: float = 200
-@export var braking : float = 200
 @export var max_steer_angle: float = 20
-@export var color := Color.GRAY
 
-var _park_spot : Node3D
-var _smallest_distance_to_goal : float
-var _times_restarted := 0
+@export var parking_manager: ParkingManager
+@export var goal_marker: Node3D
 
-@onready var _max_possible_distance := PLAYING_AREA_SIZE.length()
-@onready var _initial_position := position
-@onready var _initial_transform := transform
-#@onready var _parking_manager : ParkingSpotManager = get_node("/root/ParkingManager")
-@onready var body = %body
-@onready var spot_indicator = get_node("SpotIndicator")
+@onready var max_velocity = acceleration / mass * 40
+@onready var ai_controller: AIController3D = $CarAIController
+@onready var raycast_sensor: RayCastSensor3D = $CarAIController/Sensors
 
-# Called when the node enters the scene tree for the first time.
+var goal_parking_spot: Transform3D
+var spot : ParkSpot
+
+var requested_acceleration: float
+var requested_steering: float
+var _initial_transform: Transform3D
+var times_restarted: int
+
+var _smallest_distance_to_goal: float = 0
+var _max_goal_dist: float = 1
+
+var episode_ended_unsuccessfully_reward: float = -6
+
+#var _rear_lights: Array[MeshInstance3D]
+#@export var braking_material: StandardMaterial3D
+#@export var reversing_material: StandardMaterial3D
+
+func get_normalized_velocity():
+	return linear_velocity.normalized() * (linear_velocity.length() / max_velocity)
+	
 func _ready():
-	#var surface_id = body.mesh.surface_find_by_name("paintRed")
-	#body.mesh.surface_get_material(surface_id).albedo_color = color
-	_get_new_spot()
-	%CarAIController.init(self, _park_spot)
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	_check_for_reset()
-	_update_reward()
+	ai_controller.init(self)
+	_initial_transform = transform
 	
-	engine_force = %CarAIController.engine_force * acceleration
-	brake = %CarAIController.brake * braking
-	steering = move_toward(steering, deg_to_rad(%CarAIController.steering * max_steer_angle), delta)
+	#_rear_lights.resize(2)
+	#_rear_lights[0] = $"car_base/Rear-light" as MeshInstance3D
+	#_rear_lights[1] = $"car_base/Rear-light_001" as MeshInstance3D
 	
-	_broadcast_values()
-	_check_if_parked()
-	#engine_force = Input.get_axis("ui_up", "ui_down") * acceleration
-	#steering = deg_to_rad(Input.get_axis("ui_left", "ui_right") * -max_steer_angle)
+	goal_marker.reparent(get_parent())
 	
-	
+	_max_goal_dist = (
+		Vector2(
+			playing_area_x_size,
+			playing_area_z_size
+		).length()
+	)
+	#parking_manager.disable_random_cars()
+		
 func reset():
-	_times_restarted += 1
-	#%CarAIController.reward = Vector2(position.x, position.z).distance_to(Vector2(_park_spot.position.x, _park_spot.position.z))
-	%CarAIController.reset()
-	#position = _initial_position
+	times_restarted += 1
+	
 	transform = _initial_transform
-	_smallest_distance_to_goal = _get_current_distance_to_goal()
+	
+	#if randi_range(0, 1) == 0:
+		#transform.origin = -transform.origin
+		#transform.basis = transform.basis.rotated(Vector3.UP, PI)
+
 	linear_velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
 	
-	#_get_new_spot()
-	# reset position
-	# get another parking position	
+	transform.basis = transform.basis.rotated(Vector3.UP, randf_range(-0.3, 0.3))
+	
+	if spot != null:
+		parking_manager.release_park_spot(spot)
+	
+	spot = parking_manager.get_random_free_parking_spot_transform()
+	goal_parking_spot = spot.global_transform
+	goal_marker.global_position = goal_parking_spot.origin + Vector3.UP * 3
 
-func _update_reward():
-	if _times_restarted == 0:
-		return
+	_smallest_distance_to_goal = _get_current_distance_to_goal()
+	
+func _physics_process(delta):
+	_reset_if_needed()
+	_update_reward()
+	
+	if (ai_controller.heuristic != "human"):
+		engine_force = (requested_acceleration) * acceleration
+		steering = move_toward(steering, deg_to_rad(requested_steering * max_steer_angle), delta)
+	#else:
+		#engine_force = (
+			#int(Input.is_action_pressed("move_forward")) -
+			#int(Input.is_action_pressed("move_backward"))
+		#) * acceleration
+		#steering = move_toward(
+			#steering,
+			#deg_to_rad((
+				#int(Input.is_action_pressed("steer_left")) -
+				#int(Input.is_action_pressed("steer_right"))
+			#) * max_steer_angle),
+			#delta
+		#)
 		
-	var distance = _get_current_distance_to_goal()
-	var reward = 0.0
-	
-	var orientation_modifier := 1.0
-	
-	#reward = _smallest_distance_to_goal - distance
-	
-	if distance < GOAL_RADIUS:
-		orientation_modifier = (1 - _get_direction_difference())
-	
-	if distance < _smallest_distance_to_goal:
-		%CarAIController.reward +=  (_smallest_distance_to_goal - distance) * REWARD_CLOSING_IN * orientation_modifier
-		_smallest_distance_to_goal = distance
-	elif distance > GOAL_RADIUS:
-		%CarAIController.reward +=  -10 * (_get_normalized_velocity().length() / %CarAIController.reset_after)
-	
-	# Punishment if the car runs from the goal
-	if _smallest_distance_to_goal < GOAL_RADIUS and distance > _smallest_distance_to_goal + GOAL_RADIUS:
-		_end_episode(REWARD_OUT_OF_BOUNDS)	
-	
-	%CarAIController.reward += reward
-		
+	_reset_on_out_of_bounds()
+	_reset_on_turned_over()
+	_reset_on_went_away_from_goal()
+	_end_episode_on_goal_reached()
 
-func _check_if_parked():
-	var dist = _get_current_distance_to_goal()
-	if (	dist < PARK_DIST_THRESHOLD and 
-			_get_direction_difference() < PARK_DIR_THRESHOLD and 
-			linear_velocity.length() < PARK_VEL_THRESHOLD):
-		_successfully_parked_end_episode()
+func _reset_on_out_of_bounds():
+	if (position.y < -2 or abs(position.x) > playing_area_x_size or abs(position.z) > playing_area_z_size):
+		_end_episode(episode_ended_unsuccessfully_reward)
 
-func _check_for_reset():
-	if %CarAIController.needs_reset:
+# If the agent was near the goal but has since moved away,
+# end the episode with a negative reward	
+func _reset_on_went_away_from_goal():
+	var goal_dist = _get_current_distance_to_goal()
+	if _smallest_distance_to_goal < 1.5 and goal_dist > _smallest_distance_to_goal + 3.5:
+		_end_episode(episode_ended_unsuccessfully_reward)
+
+# If the goal condition is reached, provide a reward based on:
+# how quickly the goal was reached,
+# the current velocity,
+# direction alignment, 
+# and distance from the goal position
+func _end_episode_on_goal_reached():
+	var goal_dist = _get_current_distance_to_goal()
+	if _is_goal_reached(goal_dist):
+		var parked_succesfully_reward: float = (
+			10
+			- _get_direction_difference() * 4
+			- (float(ai_controller.n_steps) / ai_controller.reset_after) * 2
+			- get_normalized_velocity().length()
+			- (goal_dist / _max_goal_dist)
+		)
+		_end_episode(parked_succesfully_reward)
+
+func _reset_on_turned_over():
+	if global_transform.basis.y.dot(Vector3.UP) < 0.6:
+		_end_episode(episode_ended_unsuccessfully_reward)
+
+func _end_episode(final_reward: float = 0):
+	ai_controller.reward += final_reward
+	ai_controller.needs_reset = true
+	ai_controller.done = true
+
+func _reset_if_needed():
+	if ai_controller.needs_reset:
 		reset()
-
-func on_out_of_bounds () -> void :
-	_end_episode(REWARD_OUT_OF_BOUNDS)
+		ai_controller.reset()
+		
+func _update_reward():
+	if times_restarted == 0:
+		return
 	
-
-func _get_new_spot () -> void:
-	if _park_spot != null:
-		ParkingManager.release_park_spot(_park_spot)
+	var goal_dist = _get_current_distance_to_goal()
 	
-	_park_spot = ParkingManager.get_available_park_spot()
-	if spot_indicator:
-		spot_indicator.reparent(get_tree().root.get_child(0))
-		spot_indicator.global_position = _park_spot.global_transform.origin + Vector3.UP * 5
+#	# If the car is close to the goal parking spot,
+	# we modify the reward based on the angle
+	var direction_multiplier = 1
+	if goal_dist < 1:
+		direction_multiplier = (1 - _get_direction_difference()) * 1.5
 
-func _successfully_parked_end_episode() -> void:
-	var reward = (
-		REWARD_PARKED
-		- _get_direction_difference() * 4
-		- (float(%CarAIController.n_steps) / %CarAIController.reset_after) * 2
-		- _get_normalized_velocity().length()
-		#- (goal_dist / _max_goal_dist)
-	)
-	_end_episode(REWARD_PARKED)
-
-func _end_episode (final_reward: float):
-	%CarAIController.reward += final_reward
-	%CarAIController.needs_reset = true
-	%CarAIController.done = true
-
-
-func get_normalized_goal_pos():
-	return to_local(_park_spot.transform.origin)/ _max_possible_distance
-
-func _get_current_distance_to_goal() -> float:
-	# Exclude Y difference from the calculated distance 
-	var goal_transform: Transform3D = _park_spot.transform
-	goal_transform.origin.y = global_position.y
-	return goal_transform.origin.distance_to(global_position)
-
-
-func _broadcast_values() ->void:
-	emit_signal("reward_changed", %CarAIController.reward)
-	emit_signal("steering_changed", steering)
-	emit_signal("engine_force_changed", engine_force)
-	
+	if goal_dist < _smallest_distance_to_goal:
+		ai_controller.reward += (
+			(_smallest_distance_to_goal - goal_dist) *
+			direction_multiplier
+		)
+		_smallest_distance_to_goal = goal_dist
+		
+	# Encourage shorter paths
+	if goal_dist > 2:
+		ai_controller.reward -= 10 * (get_normalized_velocity().length() / ai_controller.reset_after)
+		
 # Returns the difference between current direction and goal direction in range 0,1
 # If 1, the angle is 180 degrees, if 0, the direction is perfectly aligned.
 func _get_direction_difference() -> float:
-	return (global_transform.basis.z.dot(-_park_spot.global_transform.basis.z) + 1) / 2
-	
-func _get_normalized_velocity():
-	var max_vel = acceleration / mass * 40
-	return linear_velocity.normalized() * (linear_velocity.length() / max_vel)
+	return (global_transform.basis.z.dot(-goal_parking_spot.basis.z) + 1) / 2
 
+func _is_goal_reached(current_goal_dist: float) -> bool:
+	return (
+		current_goal_dist < 0.5 and
+		linear_velocity.length() < 0.05 and
+		_get_direction_difference() < 0.07
+	)
 
-func on_collide(body):
-#	if body is VehicleBody3D:
-	_end_episode(REWARD_COLLISION)
+func _get_current_distance_to_goal() -> float:
+	# Exclude Y difference from the calculated distance 
+	var goal_transform: Transform3D = goal_parking_spot
+	goal_transform.origin.y = global_position.y
+	return goal_transform.origin.distance_to(global_position)
+
+func get_normalized_velocity_in_player_reference() -> Vector3:
+	return (
+		global_transform.basis.inverse() *
+		get_normalized_velocity()
+		)
+
+func _on_green_space_body_entered(body):
+	_end_episode(episode_ended_unsuccessfully_reward)
+
+func _on_walls_body_entered(body):
+	_end_episode(episode_ended_unsuccessfully_reward)
+
+func _on_body_entered(body):
+	_end_episode(episode_ended_unsuccessfully_reward)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://bdhkq05bgaket"]
+[gd_scene load_steps=23 format=3 uid="uid://bdhkq05bgaket"]
 
 [ext_resource type="Script" path="res://project/lidar_parking/car.gd" id="1_i6t03"]
 [ext_resource type="PackedScene" uid="uid://d1grr7omojre1" path="res://project/lidar_parking/wheel.tscn" id="1_itymu"]
@@ -343,26 +343,27 @@ shadow_mesh = SubResource("ArrayMesh_37amr")
 [sub_resource type="BoxShape3D" id="BoxShape3D_l8iaw"]
 size = Vector3(1, 0.806641, 2.31445)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m8tot"]
+albedo_color = Color(1, 1, 0, 1)
+
 [sub_resource type="SphereMesh" id="SphereMesh_be8mp"]
+material = SubResource("StandardMaterial3D_m8tot")
 radius = 0.25
 height = 0.5
 
-[node name="Car" type="VehicleBody3D" groups=["cars"]]
+[node name="Car" type="VehicleBody3D" node_paths=PackedStringArray("goal_marker") groups=["cars", "hazard"]]
 mass = 1000.0
 continuous_cd = true
 max_contacts_reported = 1
+contact_monitor = true
 script = ExtResource("1_i6t03")
-acceleration = null
-braking = null
-max_steer_angle = null
-color = null
+goal_marker = NodePath("SpotIndicator")
 
 [node name="CarMesh" type="Node3D" parent="."]
 
 [node name="sedanSports" type="Node3D" parent="CarMesh"]
 
 [node name="body" type="MeshInstance3D" parent="CarMesh/sedanSports"]
-unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4545e-14, 0.2, 0)
 mesh = SubResource("ArrayMesh_pws6y")
 skeleton = NodePath("")
@@ -417,7 +418,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.59668, 2.08165
 shape = SubResource("BoxShape3D_l8iaw")
 
 [node name="CarAIController" type="Node3D" parent="."]
-unique_name_in_owner = true
 script = ExtResource("3_b0gxf")
 reset_after = 3000
 
@@ -509,4 +509,4 @@ collide_with_areas = true
 [node name="SpotIndicator" type="MeshInstance3D" parent="."]
 mesh = SubResource("SphereMesh_be8mp")
 
-[connection signal="body_entered" from="." to="." method="on_collide"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

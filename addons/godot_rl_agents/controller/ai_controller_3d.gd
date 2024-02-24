@@ -9,50 +9,44 @@ var reward := 0.0
 var n_steps := 0
 var needs_reset := false
 
-var _car: Node3D
-
-var move = Vector2.ZERO
-
-@onready var agent = $".."
-@onready var target = $"../../Target"
+var _player: Node3D
 
 func _ready():
 	add_to_group("AGENT")
 	
 func init(player: Node3D):
-	_car = player
+	_player = player
 	
 #-- Methods that need implementing using the "extend script" option in Godot --#
 func get_obs() -> Dictionary:
-	var obs := [
-		agent.position.x,
-		agent.position.z,
-		target.position.x,
-		target.position.z
-	]
-	
-	return {"obs":obs}
+	assert(false, "the get_obs method is not implemented when extending from ai_controller") 
+	return {"obs":[]}
 
 func get_reward() -> float:	
-	return reward
+	assert(false, "the get_reward method is not implemented when extending from ai_controller") 
+	return 0.0
 	
 func get_action_space() -> Dictionary:
+	assert(false, "the get get_action_space method is not implemented when extending from ai_controller") 
 	return {
-		"move" : {
+		"example_actions_continous" : {
 			"size": 2,
 			"action_type": "continuous"
 		},
-	}
+		"example_actions_discrete" : {
+			"size": 2,
+			"action_type": "discrete"
+		},
+		}
 	
 func set_action(action) -> void:	
-	move.x = action["move"][0]
-	move.y = action["move"][1]
+	assert(false, "the get set_action method is not implemented when extending from ai_controller") 	
 # -----------------------------------------------------------------------------#
 	
 func _physics_process(delta):
 	n_steps += 1
 	if n_steps > reset_after:
-		needs_reset = true
+		needs_reset = true		
 		
 func get_obs_space():
 	# may need overriding if the obs space is complex

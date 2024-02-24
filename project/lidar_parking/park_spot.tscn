@@ -1,6 +1,29 @@
-[gd_scene load_steps=6 format=3 uid="uid://qkvjbemtruas"]
+[gd_scene load_steps=27 format=3 uid="uid://qkvjbemtruas"]
 
-[sub_resource type="SphereMesh" id="SphereMesh_ndyy1"]
+[ext_resource type="Script" path="res://project/lidar_parking/park_spot.gd" id="1_thim8"]
+[ext_resource type="PackedScene" uid="uid://d4kiamjobxqbr" path="res://project/lidar_parking/car_models/hatchbackSports.glb" id="1_u0viu"]
+[ext_resource type="PackedScene" uid="uid://c8w3v4nedvil3" path="res://project/lidar_parking/car_models/ambulance.glb" id="3_ak8pm"]
+[ext_resource type="PackedScene" uid="uid://c08mkq24l0fq4" path="res://project/lidar_parking/car_models/delivery.glb" id="3_fjc2y"]
+[ext_resource type="PackedScene" uid="uid://bjy7tn2lul22k" path="res://project/lidar_parking/car_models/deliveryFlat.glb" id="4_ynb8h"]
+[ext_resource type="PackedScene" uid="uid://xu2pwt5f56dy" path="res://project/lidar_parking/car_models/firetruck.glb" id="5_cp1c5"]
+[ext_resource type="PackedScene" uid="uid://dor40soeafnk8" path="res://project/lidar_parking/car_models/garbageTruck.glb" id="6_hxiou"]
+[ext_resource type="PackedScene" uid="uid://c7w0bpnyyh534" path="res://project/lidar_parking/car_models/police.glb" id="8_4vc30"]
+[ext_resource type="PackedScene" uid="uid://c8fcng8de8wk" path="res://project/lidar_parking/car_models/race.glb" id="9_8gcph"]
+[ext_resource type="PackedScene" uid="uid://6msarqcc24sd" path="res://project/lidar_parking/car_models/raceFuture.glb" id="10_rfxmi"]
+[ext_resource type="PackedScene" uid="uid://byt4jnmdnylya" path="res://project/lidar_parking/car_models/sedan.glb" id="11_pywco"]
+[ext_resource type="PackedScene" uid="uid://c0kbfici4slrs" path="res://project/lidar_parking/car_models/sedanSports.glb" id="12_a2j3k"]
+[ext_resource type="PackedScene" uid="uid://cmpu7bw2etco7" path="res://project/lidar_parking/car_models/suv.glb" id="13_7n1eo"]
+[ext_resource type="PackedScene" uid="uid://bv2e3xwuiic65" path="res://project/lidar_parking/car_models/suvLuxury.glb" id="14_u157c"]
+[ext_resource type="PackedScene" uid="uid://d08bl2apw5h4e" path="res://project/lidar_parking/car_models/taxi.glb" id="15_dqbjw"]
+[ext_resource type="PackedScene" uid="uid://b1nh51ryaplkf" path="res://project/lidar_parking/car_models/tractor.glb" id="16_j50bx"]
+[ext_resource type="PackedScene" uid="uid://csqn8pd3w45kq" path="res://project/lidar_parking/car_models/tractorPolice.glb" id="17_0w7f0"]
+[ext_resource type="PackedScene" uid="uid://biqi1jj8vtb7v" path="res://project/lidar_parking/car_models/tractorShovel.glb" id="18_r6dnm"]
+[ext_resource type="PackedScene" uid="uid://cdxao3wuki6ht" path="res://project/lidar_parking/car_models/truck.glb" id="19_i5u5w"]
+[ext_resource type="PackedScene" uid="uid://dhkgl1xbbuv2d" path="res://project/lidar_parking/car_models/truckFlat.glb" id="20_kv1nn"]
+[ext_resource type="PackedScene" uid="uid://rgc8eh637qxq" path="res://project/lidar_parking/car_models/van.glb" id="21_ri08s"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vnkmo"]
+size = Vector3(2, 2, 3.5)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nfd0e"]
 transparency = 1
@@ -18,11 +41,55 @@ size = Vector3(3, 0.05, 0.1)
 
 [node name="ParkSpot" type="Node3D" groups=["park_spots"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.58208, 0, -2)
+script = ExtResource("1_thim8")
 
-[node name="HoverSphere" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 2.08165e-12)
-visible = false
-mesh = SubResource("SphereMesh_ndyy1")
+[node name="Cars" type="Node3D" parent="." groups=["hazard"]]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Cars"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Cars/StaticBody3D"]
+shape = SubResource("BoxShape3D_vnkmo")
+
+[node name="ambulance2" parent="Cars" instance=ExtResource("3_ak8pm")]
+
+[node name="delivery2" parent="Cars" instance=ExtResource("3_fjc2y")]
+
+[node name="deliveryFlat2" parent="Cars" instance=ExtResource("4_ynb8h")]
+
+[node name="firetruck2" parent="Cars" instance=ExtResource("5_cp1c5")]
+
+[node name="garbageTruck2" parent="Cars" instance=ExtResource("6_hxiou")]
+
+[node name="hatchbackSports2" parent="Cars" instance=ExtResource("1_u0viu")]
+
+[node name="police2" parent="Cars" instance=ExtResource("8_4vc30")]
+
+[node name="race2" parent="Cars" instance=ExtResource("9_8gcph")]
+
+[node name="raceFuture2" parent="Cars" instance=ExtResource("10_rfxmi")]
+
+[node name="sedan2" parent="Cars" instance=ExtResource("11_pywco")]
+
+[node name="sedanSports2" parent="Cars" instance=ExtResource("12_a2j3k")]
+
+[node name="suv2" parent="Cars" instance=ExtResource("13_7n1eo")]
+
+[node name="suvLuxury2" parent="Cars" instance=ExtResource("14_u157c")]
+
+[node name="taxi2" parent="Cars" instance=ExtResource("15_dqbjw")]
+
+[node name="tractor2" parent="Cars" instance=ExtResource("16_j50bx")]
+
+[node name="tractorPolice2" parent="Cars" instance=ExtResource("17_0w7f0")]
+
+[node name="tractorShovel2" parent="Cars" instance=ExtResource("18_r6dnm")]
+
+[node name="truck2" parent="Cars" instance=ExtResource("19_i5u5w")]
+
+[node name="truckFlat2" parent="Cars" instance=ExtResource("20_kv1nn")]
+
+[node name="van2" parent="Cars" instance=ExtResource("21_ri08s")]
 
 [node name="Box" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.5, 2.08165e-12)

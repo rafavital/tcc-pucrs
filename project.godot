@@ -15,10 +15,6 @@ run/main_scene="res://project/lidar_parking/batch_parking.tscn"
 config/features=PackedStringArray("4.2", "C#", "Forward Plus")
 config/icon="res://project/icon.svg"
 
-[autoload]
-
-ParkingManager="*res://project/lidar_parking/parking_manager.gd"
-
 [dotnet]
 
 project/assembly_name="tcc-pucrs_godot"

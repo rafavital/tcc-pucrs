@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://boblul6r2it4"]
+[gd_scene load_steps=3 format=3 uid="uid://boblul6r2it4"]
 
 [ext_resource type="PackedScene" uid="uid://b2205cfkmncoq" path="res://project/lidar_parking/parking_training.tscn" id="1_1phwr"]
+[ext_resource type="Script" path="res://addons/godot_rl_agents/sync.gd" id="2_8ns2p"]
 
 [node name="BatchParking" type="Node3D"]
 
@@ -23,3 +24,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -52)
 
 [node name="ParkingTraining6" parent="." instance=ExtResource("1_1phwr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -52, 0, -52)
+
+[node name="Sync" type="Node" parent="."]
+script = ExtResource("2_8ns2p")
+speed_up = 32
